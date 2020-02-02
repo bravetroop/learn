@@ -11,6 +11,15 @@
 
 int main()
 {
+    /* 将套接字和IP、端口绑定 */
+    int len;
+    int recv_num;
+    int send_num;
+    char send_buf[20] = "i am server!";
+    char recv_buf[20];
+    struct sockaddr_in addr_serv;
+    struct sockaddr_in addr_client;
+
     /* sock_fd --- socket文件描述符 创建udp套接字*/
     int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock_fd < 0)
@@ -19,9 +28,6 @@ int main()
         exit(1);
     }
 
-    /* 将套接字和IP、端口绑定 */
-    struct sockaddr_in addr_serv;
-    int len;
     memset(&addr_serv, 0, sizeof(struct sockaddr_in));  //每个字节都用0填充
     addr_serv.sin_family = AF_INET; //使用IPV4地址
     addr_serv.sin_port = htons(SERV_PORT); //端口
@@ -36,16 +42,8 @@ int main()
         exit(1);
     }
 
-    int recv_num;
-    int send_num;
-    char send_buf[20] = "i am server!";
-    char recv_buf[20];
-    struct sockaddr_in addr_client;
-
     while(1)
     {
-        printf("server wait:\n");
-
         recv_num = recvfrom(sock_fd, recv_buf, sizeof(recv_buf), 0, (struct sockaddr *)&addr_client, (socklen_t *)&len);
 
         if(recv_num < 0)
