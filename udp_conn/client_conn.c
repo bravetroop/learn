@@ -17,7 +17,13 @@ struct sockaddr_in addr_serv;
 int bindLocal(int sock_fd, int port)
 {
     int ret = 0;
+    socklen_t sock_len;
     struct sockaddr_in localAddr = {0};
+
+    ret = getsockname(sock_fd, (struct sockaddr*)&localAddr, &sock_len);
+    if (ret != 0) {
+        printf("get sock name failed, errno:[%d]\n", errno);
+    }
 
     localAddr.sin_port = htons(port);
     ret = bind(sock_fd, (struct sockaddr *)&localAddr, sizeof(localAddr));
