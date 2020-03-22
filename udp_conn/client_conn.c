@@ -10,7 +10,7 @@
 
 #define LOCAL_PORT 32000
 #define DEST_PORT 8000
-#define DSET_IP_ADDRESS  "192.168.217.131"
+#define DSET_IP_ADDRESS  "192.168.217.136"
 
 struct sockaddr_in addr_serv;
 
@@ -19,11 +19,6 @@ int bindLocal(int sock_fd, int port)
     int ret = 0;
     socklen_t sock_len;
     struct sockaddr_in localAddr = {0};
-
-    ret = getsockname(sock_fd, (struct sockaddr*)&localAddr, &sock_len);
-    if (ret != 0) {
-        printf("get sock name failed, errno:[%d]\n", errno);
-    }
 
     localAddr.sin_port = htons(port);
     ret = bind(sock_fd, (struct sockaddr *)&localAddr, sizeof(localAddr));
@@ -36,8 +31,6 @@ int bindLocal(int sock_fd, int port)
 
 int connectServer(int sock_fd, int family)
 {
-    bindLocal(sock_fd, LOCAL_PORT);
-
     memset(&addr_serv, 0, sizeof(addr_serv));
     addr_serv.sin_family = family;
     addr_serv.sin_addr.s_addr = inet_addr(DSET_IP_ADDRESS);
@@ -65,6 +58,8 @@ int createFd()
         perror("socket");
         return -1;
     }
+
+    bindLocal(sock_fd, LOCAL_PORT);
 
     connectServer(sock_fd, AF_INET);
 
