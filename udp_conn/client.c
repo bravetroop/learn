@@ -50,22 +50,20 @@ int main()
     client_addr.sin_addr.s_addr = INADDR_ANY;
     bind(sock_fd, (struct sockaddr*)&client_addr, sizeof(client_addr));
 
+    memset(&addr_serv, 0, sizeof(addr_serv));
+    addr_serv.sin_family = AF_INET;
+    addr_serv.sin_addr.s_addr = inet_addr(DSET_IP_ADDRESS);
+    addr_serv.sin_port = htons(DEST_PORT);
+
     getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
     printf("port:[%u]\n", client_addr.sin_port);
     send_num = sendto(sock_fd, send_buf, strlen(send_buf), 0, (struct sockaddr*)&addr_serv, sizeof(addr_serv));
     getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
     printf("port:[%u]\n", client_addr.sin_port);
 
-    memset(&addr_serv, 0, sizeof(addr_serv));
-    addr_serv.sin_family = AF_INET;
-    addr_serv.sin_addr.s_addr = inet_addr(DSET_IP_ADDRESS);
-    addr_serv.sin_port = htons(DEST_PORT);
-
     while(1) {
         sleep(1);
         send_num = sendto(sock_fd, send_buf, strlen(send_buf), 0, (struct sockaddr*)&addr_serv, sizeof(addr_serv));
-        getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
-        printf("port:[%u]\n", client_addr.sin_port);
 
         if(send_num < 0) {
             perror("sendto error:");
