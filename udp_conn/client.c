@@ -1,3 +1,11 @@
+/*
+ * Copyright: Co., Ltd. 2018-2020. All rights reserved.
+ * Description: 
+ * Author: bravetroop
+ * Create: 2020-07-12
+ * Notes: 
+ * History: 
+ */ 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -9,7 +17,7 @@
 #include <arpa/inet.h>
 
 #define DEST_PORT 8000
-#define DSET_IP_ADDRESS  "192.168.217.131"
+#define DSET_IP_ADDRESS  "192.168.153.142"
 
 int main()
 {
@@ -21,6 +29,9 @@ int main()
 
     socklen_t addrLen;
     struct sockaddr_in addr_serv;
+
+    socklen_t client_addr_len = 0;
+    struct sockaddr_in client_addr;
 
     sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock_fd < 0)
@@ -34,6 +45,17 @@ int main()
         return -1;
     }
 
+    client_addr.sin_family = AF_INET;
+    client_addr.sin_port = 0;
+    client_addr.sin_addr.s_addr = INADDR_ANY;
+    bind(sock_fd, (struct sockaddr*)&client_addr, sizeof(client_addr));
+
+    getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    printf("port:[%u]\n", client_addr.sin_port);
+    send_num = sendto(sock_fd, send_buf, strlen(send_buf), 0, (struct sockaddr*)&addr_serv, sizeof(addr_serv));
+    getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    printf("port:[%u]\n", client_addr.sin_port);
+
     memset(&addr_serv, 0, sizeof(addr_serv));
     addr_serv.sin_family = AF_INET;
     addr_serv.sin_addr.s_addr = inet_addr(DSET_IP_ADDRESS);
@@ -42,6 +64,8 @@ int main()
     while(1) {
         sleep(1);
         send_num = sendto(sock_fd, send_buf, strlen(send_buf), 0, (struct sockaddr*)&addr_serv, sizeof(addr_serv));
+        getsockname(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+        printf("port:[%u]\n", client_addr.sin_port);
 
         if(send_num < 0) {
             perror("sendto error:");
